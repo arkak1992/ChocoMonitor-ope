@@ -7,25 +7,26 @@ class SettingsUI(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Settings")
-        self.setGeometry(200, 200, 300, 200)
+        self.setWindowTitle("⚙ Settings")
+        self.setGeometry(200, 200, 320, 220)
+        self.setStyleSheet("background-color: #2E2E2E; color: white; font-size: 14px;")
 
         layout = QVBoxLayout()
 
-        self.temp_label = QLabel("Start Temperature (°C):")
+        self.temp_label = QLabel("🌡 Start Temperature (°C):")
         self.temp_input = QSpinBox()
         self.temp_input.setRange(10, 50)
         layout.addWidget(self.temp_label)
         layout.addWidget(self.temp_input)
 
-        self.duration_label = QLabel("Process Duration (min):")
+        self.duration_label = QLabel("⏳ Process Duration (min):")
         self.duration_input = QSpinBox()
         self.duration_input.setRange(1, 60)
         layout.addWidget(self.duration_label)
         layout.addWidget(self.duration_input)
 
-        self.apply_button = QPushButton("Apply")
-        self.apply_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #007ACC; color: white;")
+        self.apply_button = QPushButton("✅ Apply")
+        self.apply_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #007ACC; color: white; font-weight: bold;")
         self.apply_button.clicked.connect(self.apply_settings)
         layout.addWidget(self.apply_button)
 

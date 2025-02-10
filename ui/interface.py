@@ -1,6 +1,9 @@
 import sys
 import os
-from PyQt6.QtWidgets import QApplication, QGridLayout, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QMessageBox
+import json
+from PyQt6.QtWidgets import QApplication, QGridLayout, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QFrame
+from PyQt6.QtCore import QTimer, QDateTime, Qt
+from PyQt6.QtGui import QFont
 from ui.sensor_widget import SensorWidget
 from ui.graph_widget import GraphWidget
 from ui.control_buttons import ControlButtons
@@ -16,35 +19,58 @@ class ChocoMonitorUI(QWidget):
         self.setGeometry(100, 100, 1024, 600)
         self.arduino_reader = arduino_reader
 
-        main_layout = QGridLayout()
-        left_layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        self.sensor_widget = SensorWidget(self.arduino_reader)
-        left_layout.addWidget(self.sensor_widget)
+        # Top Bar
+        self.top_bar = QHBoxLayout()
+        self.time_label = QLabel()
+        self.time_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.temp_label = QLabel("Temperature: -- °C")
+        self.temp_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.top_bar.addWidget(self.time_label)
+        self.top_bar.addStretch()
+        self.top_bar.addWidget(self.temp_label)
 
+        # Main Display (Real-time Temperature)
+        self.main_display = QLabel("--")
+        self.main_display.setFont(QFont("Arial", 60, QFont.Weight.Bold))
+        self.main_display.setStyleSheet("color: yellow;")
+
+        # Graph Display
+        self.graph_widget = GraphWidget(self.arduino_reader)
+
+        # Control Buttons
         self.buttons_widget = ControlButtons()
         self.buttons_widget.start_clicked.connect(self.start_graph)
         self.buttons_widget.stop_clicked.connect(self.stop_graph)
         self.buttons_widget.settings_clicked.connect(self.open_settings)
         self.buttons_widget.reset_clicked.connect(self.reset_graph)
-        left_layout.addWidget(self.buttons_widget)
 
-        self.export_button = QPushButton("Export Report")
-        self.export_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #007ACC; color: white;")
-        self.export_button.clicked.connect(self.export_report)
-        left_layout.addWidget(self.export_button)
+        # Bottom Bar
+        self.bottom_bar = QHBoxLayout()
+        self.bottom_bar.addWidget(self.buttons_widget)
 
-        self.print_button = QPushButton("View Results")
-        self.print_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #28A745; color: white;")
-        self.print_button.clicked.connect(self.view_results)
-        left_layout.addWidget(self.print_button)
+        # Sidebar Menu (Collapsible)
+        self.sidebar = QFrame()
+        self.sidebar.setFixedWidth(200)
+        self.sidebar.setStyleSheet("background-color: gray;")
+        self.sidebar.hide()
+        self.toggle_sidebar_button = QPushButton("☰")
+        self.toggle_sidebar_button.setFixedSize(50, 50)
+        self.toggle_sidebar_button.clicked.connect(self.toggle_sidebar)
 
-        main_layout.addLayout(left_layout, 0, 0)
-
-        self.graph_widget = GraphWidget(self.arduino_reader)
-        main_layout.addWidget(self.graph_widget, 0, 1)
+        main_layout.addLayout(self.top_bar)
+        main_layout.addWidget(self.main_display, alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(self.graph_widget)
+        main_layout.addLayout(self.bottom_bar)
+        main_layout.addWidget(self.toggle_sidebar_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(main_layout)
+
+        # Timer to update time and temp
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_display)
+        self.timer.start(1000)
 
     def start_graph(self):
         self.graph_widget.start_graph()
@@ -61,18 +87,22 @@ class ChocoMonitorUI(QWidget):
         self.settings_window = SettingsUI(self)
         self.settings_window.show()
 
-    def export_report(self):
-        csv_file = getattr(self.arduino_reader, "data_file", None)
-        if csv_file and os.path.exists(csv_file):
-            analyze_and_save(csv_file)
-            QMessageBox.information(self, "Export Success", "Report saved successfully.")
+    def update_display(self):
+        current_time = QDateTime.currentDateTime().toString("dd/MM/yyyy HH:mm")
+        self.time_label.setText(current_time)
+        temperature = self.arduino_reader.get_latest_temperature()
+        if temperature is not None:
+            self.temp_label.setText(f"Temperature: {temperature:.2f} °C")
+            self.main_display.setText(f"{temperature:.2f}")
         else:
-            QMessageBox.warning(self, "Export Error", "No valid data available for export.")
+            self.temp_label.setText("Temperature: -- °C")
+            self.main_display.setText("--")
 
-    def view_results(self):
-        self.print_window = PrintUI(self)
-        self.print_window.show()
-        self.hide()
+    def toggle_sidebar(self):
+        if self.sidebar.isVisible():
+            self.sidebar.hide()
+        else:
+            self.sidebar.show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

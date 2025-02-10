@@ -33,7 +33,7 @@ def analyze_and_save(csv_file, output_folder="results"):
     start_temp = df['Temperature (°C)'].iloc[0]
     break_points = df[df['Temperature (°C)'].diff().abs() > 2]
 
-    plt.figure(figsize=(3.35, 4.72), dpi=300)  # 85mm x 120mm
+    plt.figure(figsize=(6, 4), dpi=300)
 
     plt.subplot(2, 1, 1)
     plt.plot(df['Time (s)'], df['Temperature (°C)'], label='Temperature', color='blue')

@@ -1,7 +1,6 @@
 import pyqtgraph as pg
 from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from PyQt6.QtCore import QTimer, pyqtSignal
-import numpy as np
 import datetime
 import os
 import pandas as pd
@@ -18,7 +17,7 @@ class GraphWidget(QWidget):
         self.running = False
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.time_stamps = []  # ✅ إضافة قائمة لتخزين الزمن المرتبط بكل قراءة
+        self.time_stamps = []
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -34,7 +33,7 @@ class GraphWidget(QWidget):
     def start_graph(self):
         if not self.running:
             self.data_points = []
-            self.time_stamps = []  # ✅ إعادة تعيين قائمة الزمن عند كل تشغيل جديد
+            self.time_stamps = []
             self.running = True
             self.start_time = datetime.datetime.now()
             self.timer.start(1000)
@@ -54,7 +53,7 @@ class GraphWidget(QWidget):
             elapsed_time = (datetime.datetime.now() - self.start_time).total_seconds()
             self.data_points.append(temperature)
             self.time_stamps.append(elapsed_time)
-            self.curve.setData(self.time_stamps, self.data_points)  # ✅ ربط درجات الحرارة بالزمن
+            self.curve.setData(self.time_stamps, self.data_points)
 
     def save_results(self):
         if not self.data_points:

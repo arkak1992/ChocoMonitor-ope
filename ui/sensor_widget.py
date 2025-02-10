@@ -12,7 +12,7 @@ class SensorWidget(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        self.label = QLabel("Temperature: -- °C")
+        self.label = QLabel("🌡 Temperature: -- °C")
         self.label.setStyleSheet("font-size: 22px; font-weight: bold; color: #00FF00;")
         layout.addWidget(self.label)
         self.setLayout(layout)
@@ -20,6 +20,6 @@ class SensorWidget(QWidget):
     def update_temperature(self):
         temp = self.arduino_reader.get_latest_temperature()
         if temp is not None:
-            self.label.setText(f"Temperature: {temp:.2f} °C")  # ✅ عرض الحرارة بدقة منزلتين عشريتين
+            self.label.setText(f"🌡 Temperature: {temp:.2f} °C")  # ✅ عرض الحرارة بدقة منزلتين عشريتين
         else:
-            self.label.setText("Temperature: -- °C")
+            self.label.setText("🌡 Temperature: -- °C")

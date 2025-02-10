@@ -15,7 +15,7 @@ class PrintUI(QWidget):
         layout = QVBoxLayout()
 
         # Title
-        self.title_label = QLabel("Print Results")
+        self.title_label = QLabel("📄 Print Results")
         self.title_label.setStyleSheet("font-size: 50px; font-weight: bold; color: #00FFFF; text-align: center;")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
@@ -44,7 +44,7 @@ class PrintUI(QWidget):
         self.load_folders()
 
         # Back Button
-        self.back_button = QPushButton("Back")
+        self.back_button = QPushButton("🔙 Back")
         self.back_button.setStyleSheet("font-size: 32px; font-weight: bold; padding: 20px; border-radius: 15px; background-color: #FF4500; color: white; border: 2px solid #FF6347; min-width: 200px;")
         self.back_button.clicked.connect(self.go_back)
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignCenter)

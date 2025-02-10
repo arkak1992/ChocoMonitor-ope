@@ -11,16 +11,16 @@ class ControlButtons(QWidget):
         super().__init__()
         layout = QVBoxLayout()
 
-        self.start_button = self.create_button("Start", "green", self.start_clicked)
+        self.start_button = self.create_button("▶ Start", "green", self.start_clicked)
         layout.addWidget(self.start_button)
 
-        self.stop_button = self.create_button("Stop", "red", self.stop_clicked)
+        self.stop_button = self.create_button("⏹ Stop", "red", self.stop_clicked)
         layout.addWidget(self.stop_button)
 
-        self.settings_button = self.create_button("Settings", "blue", self.settings_clicked)
+        self.settings_button = self.create_button("⚙ Settings", "blue", self.settings_clicked)
         layout.addWidget(self.settings_button)
 
-        self.reset_button = self.create_button("Reset", "orange", self.reset_clicked, text_color="black")
+        self.reset_button = self.create_button("🔄 Reset", "orange", self.reset_clicked, text_color="black")
         layout.addWidget(self.reset_button)
 
         self.setLayout(layout)
@@ -28,6 +28,6 @@ class ControlButtons(QWidget):
     def create_button(self, text, bg_color, signal, text_color="white"):
         button = QPushButton(text)
         button.setFixedHeight(50)
-        button.setStyleSheet(f"font-size: 18px; background-color: {bg_color}; color: {text_color};")
+        button.setStyleSheet(f"font-size: 18px; background-color: {bg_color}; color: {text_color}; font-weight: bold;")
         button.clicked.connect(signal.emit)
         return button

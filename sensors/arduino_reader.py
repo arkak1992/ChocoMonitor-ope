@@ -10,13 +10,12 @@ class ArduinoReader:
         self.ser = None
         self.running = False
         self.latest_temperature = None
-        self.previous_temperature = None  # ✅ تخزين آخر قيمة معروفة
+        self.previous_temperature = None
         self.lock = Lock()
         self.stop_event = Event()
-        atexit.register(self.cleanup)  # إغلاق الاتصال عند إنهاء البرنامج
+        atexit.register(self.cleanup)
 
     def connect(self):
-        """محاولة الاتصال بمنفذ الأردوينو"""
         max_retries = 5
         for attempt in range(max_retries):
             try:
@@ -34,7 +33,6 @@ class ArduinoReader:
         return False
 
     def start_reading(self):
-        """بدء قراءة البيانات في خيط منفصل"""
         if not self.connect():
             return
         self.running = True
@@ -43,14 +41,12 @@ class ArduinoReader:
         self.thread.start()
 
     def read_loop(self):
-        """قراءة البيانات بشكل مستمر"""
         while self.running and not self.stop_event.is_set():
             try:
                 if self.ser and self.ser.in_waiting > 0:
                     data = self.ser.readline().decode('utf-8', errors='ignore').strip()
                     if self.is_valid_temperature(data):
                         temp = round(float(data), 2)
-
                         with self.lock:
                             self.previous_temperature = self.latest_temperature
                             self.latest_temperature = temp
@@ -60,11 +56,10 @@ class ArduinoReader:
                 self.connect()
             except ValueError:
                 print("⚠ Invalid numeric conversion")
-            time.sleep(1)  # ✅ تحديث كل ثانية لمزامنة البيانات مع Arduino
+            time.sleep(1)
         self.cleanup()
 
     def is_valid_temperature(self, data):
-        """التحقق من صحة البيانات"""
         try:
             float(data)
             return True
@@ -72,18 +67,15 @@ class ArduinoReader:
             return False
 
     def get_latest_temperature(self):
-        """إرجاع آخر قيمة محسوبة"""
         with self.lock:
             return self.latest_temperature
 
     def stop_reading(self):
-        """إيقاف القراءة"""
         self.running = False
         self.stop_event.set()
         self.cleanup()
 
     def cleanup(self):
-        """إغلاق الاتصال"""
         if self.ser and self.ser.is_open:
             self.ser.close()
             print("🔌 Serial connection closed safely.")
