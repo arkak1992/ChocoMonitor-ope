@@ -1,12 +1,12 @@
 import sys
 import os
-import json
 from PyQt6.QtWidgets import QApplication, QGridLayout, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QMessageBox
 from ui.sensor_widget import SensorWidget
 from ui.graph_widget import GraphWidget
 from ui.control_buttons import ControlButtons
 from ui.settings_ui import SettingsUI
-from sensors.arduino_receiver import ArduinoReader
+from ui.print_ui import PrintUI
+from sensors.arduino_reader import ArduinoReader
 from algorithms.data_analysis import analyze_and_save
 
 class ChocoMonitorUI(QWidget):
@@ -33,6 +33,11 @@ class ChocoMonitorUI(QWidget):
         self.export_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #007ACC; color: white;")
         self.export_button.clicked.connect(self.export_report)
         left_layout.addWidget(self.export_button)
+
+        self.print_button = QPushButton("View Results")
+        self.print_button.setStyleSheet("font-size: 16px; padding: 10px; background-color: #28A745; color: white;")
+        self.print_button.clicked.connect(self.view_results)
+        left_layout.addWidget(self.print_button)
 
         main_layout.addLayout(left_layout, 0, 0)
 
@@ -63,6 +68,11 @@ class ChocoMonitorUI(QWidget):
             QMessageBox.information(self, "Export Success", "Report saved successfully.")
         else:
             QMessageBox.warning(self, "Export Error", "No valid data available for export.")
+
+    def view_results(self):
+        self.print_window = PrintUI(self)
+        self.print_window.show()
+        self.hide()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
