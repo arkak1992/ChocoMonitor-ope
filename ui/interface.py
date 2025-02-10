@@ -1,7 +1,7 @@
 import sys
 import os
-from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QPushButton, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
-from PyQt6.QtCore import QTimer, QDateTime
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFrame
+from PyQt6.QtCore import QTimer, QDateTime, Qt
 from PyQt6.QtGui import QFont
 from ui.graph_widget import GraphWidget
 from ui.control_buttons import ControlButtons
@@ -12,7 +12,8 @@ class ChocoMonitorUI(QWidget):
     def __init__(self, arduino_reader):
         super().__init__()
         self.setWindowTitle("ChocoMonitor - Temperature Analyzer")
-        self.setGeometry(100, 100, 1024, 600)
+        self.setGeometry(100, 100, 1280, 720)
+        self.setStyleSheet("background-color: #121212; color: white;")
         self.arduino_reader = arduino_reader
 
         main_layout = QVBoxLayout()
@@ -20,36 +21,37 @@ class ChocoMonitorUI(QWidget):
         # Top Bar
         self.top_bar = QHBoxLayout()
         self.time_label = QLabel()
-        self.time_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.time_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
         self.top_bar.addWidget(self.time_label)
+        self.top_bar.addStretch()
 
         # Graph Display
+        self.graph_frame = QFrame()
+        self.graph_frame.setStyleSheet("background-color: #1E1E1E; border-radius: 15px; padding: 10px;")
+        self.graph_layout = QVBoxLayout()
         self.graph_widget = GraphWidget(self.arduino_reader)
+        self.graph_layout.addWidget(self.graph_widget)
+        self.graph_frame.setLayout(self.graph_layout)
 
         # Control Buttons
+        self.buttons_layout = QHBoxLayout()
         self.buttons_widget = ControlButtons()
         self.buttons_widget.start_clicked.connect(self.start_graph)
         self.buttons_widget.stop_clicked.connect(self.stop_graph)
         self.buttons_widget.settings_clicked.connect(self.open_settings)
 
-        # Results Button
+        # Results Button (Replacing Reset Button)
         self.results_button = QPushButton("📂 View Results")
-        self.results_button.setFixedHeight(50)  # نفس ارتفاع الأزرار الأخرى
-        self.results_button.setStyleSheet("font-size: 18px; background-color: #007ACC; color: white; font-weight: bold;")
+        self.results_button.setStyleSheet("font-size: 20px; padding: 15px; background-color: #007ACC; color: white; border-radius: 10px;")
+        self.results_button.setFixedHeight(60)
         self.results_button.clicked.connect(self.open_results)
 
-        # Bottom Bar
-        self.bottom_bar = QHBoxLayout()
-        self.bottom_bar.addWidget(self.buttons_widget)
-
-        # إضافة مسافة لدفع زر النتائج إلى اليمين
-        spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.bottom_bar.addItem(spacer)
-        self.bottom_bar.addWidget(self.results_button)
+        self.buttons_layout.addWidget(self.buttons_widget)
+        self.buttons_layout.addWidget(self.results_button)
 
         main_layout.addLayout(self.top_bar)
-        main_layout.addWidget(self.graph_widget)
-        main_layout.addLayout(self.bottom_bar)
+        main_layout.addWidget(self.graph_frame)
+        main_layout.addLayout(self.buttons_layout)
 
         self.setLayout(main_layout)
 
